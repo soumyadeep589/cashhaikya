@@ -1,0 +1,28 @@
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
+from phonenumber_field.modelfields import PhoneNumberField
+from .managers import CustomUserManager
+
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    phone = PhoneNumberField(unique=True)
+    name = models.CharField(max_length=256, blank=True, null=True)
+    otp = models.CharField(max_length=6, blank=True, null=True)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    note = models.TextField(null=True, blank=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    USERNAME_FIELD = "phone"
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+
+    class Meta:
+        db_table = "user"
+        ordering = ["id"]
+
+    def __str__(self):
+        return str(self.phone)

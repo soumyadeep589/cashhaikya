@@ -30,6 +30,7 @@ DBUSER = os.environ.get('DBUSER')
 DBHOST = os.environ.get('DBHOST')
 BUCKET_NAME = os.environ.get('BUCKET_NAME')
 S3_URL = os.environ.get('S3_URL')
+FAST_2_SMS_API_KEY = os.environ.get('FAST_2_SMS_API_KEY')
 
 
 # Quick-start development settings - unsuitable for production
@@ -51,6 +52,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'user',
+    'phonenumber_field',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -133,6 +138,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
+
+AUTH_USER_MODEL = "user.CustomUser"
 
 
 LOGGING = {
