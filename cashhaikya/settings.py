@@ -55,7 +55,8 @@ INSTALLED_APPS = [
 
     'user',
     'phonenumber_field',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'request'
 ]
 
 MIDDLEWARE = [
