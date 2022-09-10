@@ -41,9 +41,11 @@ class GenerateOTP(APIView):
             user.otp = str(otp)
             user.save()
             logger.info("otp saved to customer successfully")
-            url = f"https://www.fast2sms.com/dev/bulkV2?authorization=" \
-                  f"{FAST_2_SMS_API_KEY}&variables_values=for cashaikya is {str(otp)}&route=otp" \
-                  f"&numbers={phone}"
+            url = (
+                f"https://www.fast2sms.com/dev/bulkV2?authorization="
+                f"{FAST_2_SMS_API_KEY}&variables_values=for cashaikya is {str(otp)}&route=otp"
+                f"&numbers={phone}"
+            )
             response = requests.get(url)
             logger.info("otp sent successfully")
         except Exception as e:
@@ -54,7 +56,6 @@ class GenerateOTP(APIView):
 
 
 class VerifyOTP(APIView):
-
     def post(self, request):
         data = request.data
 
@@ -67,13 +68,13 @@ class VerifyOTP(APIView):
             user = CustomUser.objects.get(phone=data["phone"], otp=data["otp"])
         except CustomUser.DoesNotExist:
             logger.error("Invalid OTP")
-            return json_error('Invalid OTP')
+            return json_error("Invalid OTP")
         except Exception as e:
             logger.error("something went wrong" + str(e))
             return json_error("something went wrong" + str(e), 500)
 
         token = Token.objects.create(user=user)
-        return json_success({'token': token.key})
+        return json_success({"token": token.key})
 
 
 class Test(APIView):

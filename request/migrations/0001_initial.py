@@ -15,21 +15,54 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Request',
+            name="Request",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('C', 'Cash'), ('B', 'Bank')], default='B', max_length=16)),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=8)),
-                ('is_active', models.BooleanField(default=True)),
-                ('status', models.CharField(choices=[('RQ', 'Request'), ('PS', 'Partially Settled'), ('ST', 'Settled'), ('CL', 'Cancelled')], default='RQ', max_length=16)),
-                ('updated_on', models.DateTimeField(auto_now=True)),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("C", "Cash"), ("B", "Bank")],
+                        default="B",
+                        max_length=16,
+                    ),
+                ),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=8)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("RQ", "Request"),
+                            ("PS", "Partially Settled"),
+                            ("ST", "Settled"),
+                            ("CL", "Cancelled"),
+                        ],
+                        default="RQ",
+                        max_length=16,
+                    ),
+                ),
+                ("updated_on", models.DateTimeField(auto_now=True)),
+                ("created_on", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'request',
-                'db_table': 'request',
-                'ordering': ['id'],
+                "verbose_name_plural": "request",
+                "db_table": "request",
+                "ordering": ["id"],
             },
         ),
     ]

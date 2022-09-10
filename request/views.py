@@ -1,8 +1,9 @@
+from rest_framework.viewsets import ModelViewSet
+
 from .serializer import RequestCreateSerializer
-from rest_framework import generics
 from .models import Request
 
 
-class CreateRequestView(generics.ListCreateAPIView):
+class RequestViewSet(ModelViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestCreateSerializer
