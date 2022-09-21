@@ -14,7 +14,7 @@ class Request(models.Model):
         CASH = "C", _("Cash")
         BANK = "B", _("Bank")
 
-    user = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
+    user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
     type = models.CharField(max_length=16, choices=Type.choices, default=Type.BANK)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     is_active = models.BooleanField(default=True)

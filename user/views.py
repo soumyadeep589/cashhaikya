@@ -73,7 +73,7 @@ class VerifyOTP(APIView):
             logger.error("something went wrong" + str(e))
             return json_error("something went wrong" + str(e), 500)
 
-        token = Token.objects.create(user=user)
+        token, _ = Token.objects.get_or_create(user=user)
         return json_success({"token": token.key})
 
 
