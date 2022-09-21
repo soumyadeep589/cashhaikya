@@ -21,9 +21,9 @@ structlog.dev.ConsoleRenderer(
 logger = structlog.get_logger(__name__)
 
 
-class GenerateOTP(APIView):
+class Register(APIView):
     """
-    for creating customer
+    for registering customer
     """
 
     def post(self, request):
@@ -31,12 +31,18 @@ class GenerateOTP(APIView):
 
         if not data.get("phone"):
             return json_error("phone is mandatory")
+        if not data.get("name"):
+            return json_error("name is mandatory")
 
         try:
             phone = data["phone"]
+            name = data["name"]
             otp = random.randrange(100000, 999999)
-            user, _ = CustomUser.objects.get_or_create(
-                phone=data["phone"],
+            if CustomUser.objects.filter(phone=phone).exists():
+                return json_error("User already present with this phone, try login")
+            user = CustomUser.objects.create(
+                phone=phone,
+                name=name
             )
             user.otp = str(otp)
             user.save()
@@ -53,6 +59,76 @@ class GenerateOTP(APIView):
             return json_error("something went wrong" + str(e), status=500)
 
         return json_success(response.json()["message"])
+
+
+class Login(APIView):
+    """
+    for login customer
+    """
+
+    def post(self, request):
+        data = request.data
+
+        if not data.get("phone"):
+            return json_error("phone is mandatory")
+
+        try:
+            phone = data["phone"]
+            otp = random.randrange(100000, 999999)
+            if not CustomUser.objects.filter(phone=phone).exists():
+                return json_error("User not present with this phone, try register")
+            user = CustomUser.objects.get(
+                phone=phone,
+            )
+            user.otp = str(otp)
+            user.save()
+            logger.info("otp saved to customer successfully")
+            url = (
+                f"https://www.fast2sms.com/dev/bulkV2?authorization="
+                f"{FAST_2_SMS_API_KEY}&variables_values=for cashaikya is {str(otp)}&route=otp"
+                f"&numbers={phone}"
+            )
+            response = requests.get(url)
+            logger.info("otp sent successfully")
+        except Exception as e:
+            logger.error("something went wrong: " + str(e))
+            return json_error("something went wrong" + str(e), status=500)
+
+        return json_success(response.json()["message"])
+
+
+# class GenerateOTP(APIView):
+#     """
+#     for creating customer
+#     """
+#
+#     def post(self, request):
+#         data = request.data
+#
+#         if not data.get("phone"):
+#             return json_error("phone is mandatory")
+#
+#         try:
+#             phone = data["phone"]
+#             otp = random.randrange(100000, 999999)
+#             user, _ = CustomUser.objects.get_or_create(
+#                 phone=data["phone"],
+#             )
+#             user.otp = str(otp)
+#             user.save()
+#             logger.info("otp saved to customer successfully")
+#             url = (
+#                 f"https://www.fast2sms.com/dev/bulkV2?authorization="
+#                 f"{FAST_2_SMS_API_KEY}&variables_values=for cashaikya is {str(otp)}&route=otp"
+#                 f"&numbers={phone}"
+#             )
+#             response = requests.get(url)
+#             logger.info("otp sent successfully")
+#         except Exception as e:
+#             logger.error("something went wrong: " + str(e))
+#             return json_error("something went wrong" + str(e), status=500)
+#
+#         return json_success(response.json()["message"])
 
 
 class VerifyOTP(APIView):
