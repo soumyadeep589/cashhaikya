@@ -40,10 +40,7 @@ class Register(APIView):
             otp = random.randrange(100000, 999999)
             if CustomUser.objects.filter(phone=phone).exists():
                 return json_error("User already present with this phone, try login")
-            user = CustomUser.objects.create(
-                phone=phone,
-                name=name
-            )
+            user = CustomUser.objects.create(phone=phone, name=name)
             user.otp = str(otp)
             user.save()
             logger.info("otp saved to customer successfully")

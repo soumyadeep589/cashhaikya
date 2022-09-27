@@ -7,8 +7,8 @@ class Request(models.Model):
     class Status(models.TextChoices):
         REQUEST = "RQ", _("Request")
         PARTIALLY_SETTLED = "PS", _("Partially Settled")
-        SETTLED = "ST", _("Settled")
-        CANCELLED = "CL", _("Cancelled")
+        CLOSED = "CL", _("Closed")
+        DELETED = "DL", _("Deleted")
 
     class Type(models.TextChoices):
         CASH = "C", _("Cash")
@@ -18,6 +18,7 @@ class Request(models.Model):
     type = models.CharField(max_length=16, choices=Type.choices, default=Type.BANK)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
     status = models.CharField(
         max_length=16, choices=Status.choices, default=Status.REQUEST
     )
