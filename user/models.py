@@ -11,6 +11,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     otp = models.CharField(max_length=6, blank=True, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    transactions = models.IntegerField(default=0)
     note = models.TextField(null=True, blank=True)
     updated_on = models.DateTimeField(auto_now=True)
     created_on = models.DateTimeField(auto_now_add=True)
