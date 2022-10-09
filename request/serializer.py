@@ -9,3 +9,14 @@ class RequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = "__all__"
+
+    def validate(self, data):
+        """
+        check user has any opened request
+        """
+        user = self.context["request"].user
+        if Request.objects.filter(
+            opened_by=user, is_deleted=False, status="RQ"
+        ).exists():
+            raise serializers.ValidationError("user already has opened request")
+        return data
