@@ -6,6 +6,7 @@ class UserPermission(permissions.BasePermission):
         if view.action in [
             "create",
             "delete",
+            "close",
         ]:
             return request.user.is_authenticated
         return False

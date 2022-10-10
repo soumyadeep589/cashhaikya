@@ -1,10 +1,11 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 
 from .permission import UserPermission
-from .serializer import RequestCreateSerializer
+from .serializer import RequestCreateSerializer, RequestCloseSerializer
 from .models import Request
 
 
@@ -13,10 +14,14 @@ class RequestViewSet(ModelViewSet):
     serializer_class = RequestCreateSerializer
     permission_classes = [UserPermission]
 
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+        if self.action == "close":
+            serializer_class = RequestCloseSerializer
+        return serializer_class
+
     def create(self, request, *args, **kwargs):
         data = request.data
-        opened_by = request.user.id
-
         data["opened_by"] = request.user.id
         serializer = self.get_serializer(data=data, context={"request": request})
         if serializer.is_valid():
@@ -33,10 +38,12 @@ class RequestViewSet(ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=True, methods=["post"])
-    def close(self, request, pk=None):
-        data = request.data
-        serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def close(self, request, **kwargs):
+        instance = get_object_or_404(self.get_queryset(), pk=kwargs.get("pk"))
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )

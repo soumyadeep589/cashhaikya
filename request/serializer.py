@@ -20,3 +20,9 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError("user already has opened request")
         return data
+
+
+class RequestCloseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = "__all__"
