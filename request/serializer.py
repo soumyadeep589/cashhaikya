@@ -16,7 +16,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         """
         user = self.context["request"].user
         if Request.objects.filter(
-            opened_by=user, is_deleted=False, status="RQ"
+            opened_by=user, is_deleted=False, status="RQ", closed_to=None
         ).exists():
             raise serializers.ValidationError("user already has opened request")
         return data

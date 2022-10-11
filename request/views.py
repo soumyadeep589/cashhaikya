@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -40,10 +41,21 @@ class RequestViewSet(ModelViewSet):
     @action(detail=True, methods=["post"])
     def close(self, request, **kwargs):
         instance = get_object_or_404(self.get_queryset(), pk=kwargs.get("pk"))
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK,
-        )
+        if instance.closed_to is None:
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            if serializer.validated_data.get("closed_to") == instance.opened_by:
+                return Response(
+                    {"error": "can not be closed with same opened by"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            with transaction.atomic():
+                self.perform_update(serializer)
+                closed_to = serializer.validated_data.get("closed_to")
+                closed_to.transactions += 1 if closed_to.transactions is None else 1
+                closed_to.save()
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_200_OK,
+                )
+        return Response({"error": "already closed"}, status=status.HTTP_400_BAD_REQUEST)
