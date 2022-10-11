@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Request
+from .models import Request, CallList
 
 __author__ = "soumyadeep"
 
@@ -25,4 +25,10 @@ class RequestCreateSerializer(serializers.ModelSerializer):
 class RequestCloseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
+        fields = "__all__"
+
+
+class CallListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CallList
         fields = "__all__"

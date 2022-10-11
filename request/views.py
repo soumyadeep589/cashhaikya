@@ -6,8 +6,12 @@ from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 
 from .permission import UserPermission
-from .serializer import RequestCreateSerializer, RequestCloseSerializer
-from .models import Request
+from .serializer import (
+    RequestCreateSerializer,
+    RequestCloseSerializer,
+    CallListSerializer,
+)
+from .models import Request, CallList
 
 
 class RequestViewSet(ModelViewSet):
@@ -59,3 +63,18 @@ class RequestViewSet(ModelViewSet):
                     status=status.HTTP_200_OK,
                 )
         return Response({"error": "already closed"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CallViewSet(ModelViewSet):
+    queryset = CallList.objects.all()
+    serializer_class = CallListSerializer
+    permission_classes = [UserPermission]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        data["called_by"] = request.user.id
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
