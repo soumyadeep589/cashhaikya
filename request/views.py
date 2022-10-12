@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -18,6 +19,7 @@ class RequestViewSet(ModelViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestCreateSerializer
     permission_classes = [UserPermission]
+    http_method_names = ["get", "post", "patch", "delete"]
 
     def get_serializer_class(self):
         serializer_class = self.serializer_class
@@ -63,6 +65,16 @@ class RequestViewSet(ModelViewSet):
                     status=status.HTTP_200_OK,
                 )
         return Response({"error": "already closed"}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["get"])
+    def history(self, request, *args, **kwargs):
+        requests = (
+            self.get_queryset()
+            .filter(opened_by=request.user, is_active=True)
+            .exclude(status="RQ")
+        )
+        serializer = self.get_serializer(requests, many=True)
+        return Response(serializer.data)
 
 
 class CallViewSet(ModelViewSet):

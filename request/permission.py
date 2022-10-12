@@ -7,8 +7,9 @@ class UserPermission(permissions.BasePermission):
             "create",
             "delete",
             "close",
+            "history",
         ]:
-            return request.user.is_authenticated
+            return True
         return False
 
     def has_object_permission(self, request, view, obj):
