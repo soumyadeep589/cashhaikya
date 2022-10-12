@@ -8,6 +8,7 @@ class UserPermission(permissions.BasePermission):
             "delete",
             "close",
             "history",
+            "active",
         ]:
             return True
         return False

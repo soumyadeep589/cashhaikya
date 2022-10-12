@@ -40,6 +40,7 @@ class RequestViewSet(ModelViewSet):
     def delete(self, request, pk=None):
         obj = self.get_object()
         obj.is_deleted = True
+        obj.status = "DL"
         obj.save()
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
@@ -74,6 +75,14 @@ class RequestViewSet(ModelViewSet):
             .exclude(status="RQ")
         )
         serializer = self.get_serializer(requests, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"])
+    def active(self, request, *args, **kwargs):
+        request = self.get_queryset().filter(
+            opened_by=request.user, is_active=True, status="RQ", is_deleted=False
+        )
+        serializer = self.get_serializer(request, many=True)
         return Response(serializer.data)
 
 
