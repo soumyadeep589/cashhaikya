@@ -91,8 +91,15 @@ class RequestViewSet(ModelViewSet):
         request = self.get_queryset().filter(
             opened_by=request.user, is_active=True, status="RQ", is_deleted=False
         )
-        serializer = self.get_serializer(request, many=True)
-        return Response(serializer.data)
+        if request.exists():
+            request = request.first()
+            call_list = CallList.objects.filter(request=request)
+            call_serializer = CallListSerializer(call_list, many=True)
+            serializer = self.get_serializer(request)
+            return Response(
+                {"request": serializer.data, "call_list": call_serializer.data}
+            )
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class CallViewSet(ModelViewSet):
@@ -103,8 +110,19 @@ class CallViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data
         data["called_by"] = request.user.id
+        request_of_called_by = Request.objects.filter(
+            opened_by=request.user, is_active=True, status="RQ", is_deleted=False
+        ).first()
         serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        with transaction.atomic():
+            if serializer.is_valid():
+                serializer.save()
+                data_to = {
+                    "request": str(request_of_called_by.id),
+                    "called_to": serializer.validated_data["request"].opened_by.id,
+                }
+                serializer = self.get_serializer(data=data_to)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

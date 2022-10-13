@@ -45,7 +45,12 @@ class Request(models.Model):
 
 class CallList(models.Model):
     request = models.ForeignKey(Request, on_delete=models.PROTECT)
-    called_by = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
+    called_by = models.ForeignKey(
+        CustomUser, on_delete=models.PROTECT, null=True, related_name="called_by_all"
+    )
+    called_to = models.ForeignKey(
+        CustomUser, on_delete=models.PROTECT, null=True, related_name="called_to_all"
+    )
     is_active = models.BooleanField(default=True)
     updated_on = models.DateTimeField(auto_now=True)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -54,10 +59,6 @@ class CallList(models.Model):
         db_table = "call_list"
         verbose_name_plural = "call_list"
         ordering = ["id"]
-        unique_together = (
-            "request",
-            "called_by",
-        )
 
     def __str__(self):
         return f"{self.id}, request: {self.request.id}, user: {self.called_by.id}"
