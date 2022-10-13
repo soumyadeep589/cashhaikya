@@ -27,6 +27,15 @@ class RequestViewSet(ModelViewSet):
             serializer_class = RequestCloseSerializer
         return serializer_class
 
+    def get_queryset(self):
+        queryset = self.queryset
+        request_type = self.request.query_params.get("type")
+        if request_type is not None:
+            queryset = self.queryset.filter(
+                is_active=True, status="RQ", is_deleted=False, type=request_type
+            )
+        return queryset
+
     def create(self, request, *args, **kwargs):
         data = request.data
         data["opened_by"] = request.user.id
