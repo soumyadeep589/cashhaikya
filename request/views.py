@@ -11,6 +11,7 @@ from .serializer import (
     RequestCreateSerializer,
     RequestCloseSerializer,
     CallListSerializer,
+    RequestUpdateSerializer
 )
 from .models import Request, CallList
 
@@ -25,6 +26,8 @@ class RequestViewSet(ModelViewSet):
         serializer_class = self.serializer_class
         if self.action == "close":
             serializer_class = RequestCloseSerializer
+        if self.action == "partial_update":
+            serializer_class = RequestUpdateSerializer
         return serializer_class
 
     def get_queryset(self):

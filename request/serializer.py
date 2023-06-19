@@ -1,14 +1,22 @@
 from rest_framework import serializers
 
-from .models import Request, CallList
+from .models import Request, CallList, CustomUser
 
 __author__ = "soumyadeep"
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'name', 'transactions', 'phone']
+
+
 class RequestCreateSerializer(serializers.ModelSerializer):
+    opened_by = UserSerializer()
+
     class Meta:
         model = Request
-        fields = "__all__"
+        fields = ['id', 'amount', 'opened_by', 'type']
 
     def validate(self, data):
         """
@@ -22,6 +30,14 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         return data
 
 
+class RequestUpdateSerializer(serializers.ModelSerializer):
+    opened_by = UserSerializer()
+
+    class Meta:
+        model = Request
+        fields = ['id', 'amount', 'opened_by', 'type']
+
+
 class RequestCloseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
@@ -29,6 +45,8 @@ class RequestCloseSerializer(serializers.ModelSerializer):
 
 
 class CallListSerializer(serializers.ModelSerializer):
+    called_by = UserSerializer()
+
     class Meta:
         model = CallList
-        fields = "__all__"
+        fields = ['id', "called_by"]
