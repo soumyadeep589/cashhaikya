@@ -1,29 +1,32 @@
 from django.db import transaction
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
+from utils.notification import notify
 
 from .permission import UserPermission
 from .serializer import (
     RequestCreateSerializer,
     RequestCloseSerializer,
     CallListSerializer,
-    RequestUpdateSerializer
+    RequestUpdateSerializer,
+    RequestSerializer
 )
 from .models import Request, CallList
 
 
 class RequestViewSet(ModelViewSet):
     queryset = Request.objects.all()
-    serializer_class = RequestCreateSerializer
+    serializer_class = RequestSerializer
     permission_classes = [UserPermission]
     http_method_names = ["get", "post", "patch", "delete"]
 
     def get_serializer_class(self):
         serializer_class = self.serializer_class
+        if self.action == "create":
+            serializer_class = RequestCreateSerializer
         if self.action == "close":
             serializer_class = RequestCloseSerializer
         if self.action == "partial_update":
@@ -42,9 +45,13 @@ class RequestViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data
         data["opened_by"] = request.user.id
+        user_name = request.user.name
+        request_type = "cash" if data["type"] is "C" else "bank"
+        amount = data["amount"]
         serializer = self.get_serializer(data=data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
+            notify(title="Attention !!!", body=f"{user_name} has requested {amount} rupees in {request_type}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -12,9 +12,12 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 import os
 import structlog
+import firebase_admin
 
 # import dj_database_url
 from dotenv import load_dotenv
+from firebase_admin import initialize_app
+from firebase_admin import credentials
 from os.path import join, dirname
 from pathlib import Path
 
@@ -32,7 +35,7 @@ DBHOST = os.environ.get("DBHOST")
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 S3_URL = os.environ.get("S3_URL")
 FAST_2_SMS_API_KEY = os.environ.get("FAST_2_SMS_API_KEY")
-
+GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -42,7 +45,6 @@ FAST_2_SMS_API_KEY = os.environ.get("FAST_2_SMS_API_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -57,6 +59,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "rest_framework.authtoken",
     "request",
+    "fcm_django"
 ]
 
 MIDDLEWARE = [
@@ -88,7 +91,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "cashhaikya.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -122,7 +124,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -134,12 +135,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = "static/"
-
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -151,7 +150,6 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "user.CustomUser"
-
 
 LOGGING = {
     "version": 1,
@@ -220,5 +218,25 @@ structlog.configure(
 )
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
+
+
+
+FCM_DJANGO_SETTINGS = {
+    # an instance of firebase_admin.App to be used as default for all fcm-django requests
+    # default: None (the default Firebase app)
+    "DEFAULT_FIREBASE_APP": None,
+    # default: _('FCM Django')
+    "APP_VERBOSE_NAME": "chk-fcm-test",
+    # true if you want to have only one active device per registered user at a time
+    # default: False
+    "ONE_DEVICE_PER_USER": True,
+    # devices to which notifications cannot be sent,
+    # are deleted upon receiving error response from FCM
+    # default: False
+    "DELETE_INACTIVE_DEVICES": False,
+}
+
+cred = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
+FIREBASE_APP = initialize_app(cred)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

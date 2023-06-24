@@ -11,12 +11,29 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'transactions', 'phone']
 
 
-class RequestCreateSerializer(serializers.ModelSerializer):
+class DateSerializerField(serializers.Field):
+    def to_representation(self, value):
+        return value.date() if value else None
+
+    def to_internal_value(self, data):
+        # This method can be left empty since we don't need it for read-only fields
+        pass
+
+
+class RequestSerializer(serializers.ModelSerializer):
     opened_by = UserSerializer()
+    updated_on = DateSerializerField()
 
     class Meta:
         model = Request
-        fields = ['id', 'amount', 'opened_by', 'type']
+        fields = ['id', 'amount', 'opened_by', 'type', 'status', 'updated_on']
+
+
+class RequestCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Request
+        fields = ['id', 'amount', 'type', 'opened_by']
 
     def validate(self, data):
         """
