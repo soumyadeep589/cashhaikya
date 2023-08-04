@@ -12,7 +12,9 @@ from .serializer import (
     RequestCloseSerializer,
     CallListSerializer,
     RequestUpdateSerializer,
-    RequestSerializer
+    RequestSerializer,
+    UserSerializer,
+    CreateCallSerializer
 )
 from .models import Request, CallList
 
@@ -46,7 +48,7 @@ class RequestViewSet(ModelViewSet):
         data = request.data
         data["opened_by"] = request.user.id
         user_name = request.user.name
-        request_type = "cash" if data["type"] is "C" else "bank"
+        request_type = "cash" if data["type"] == "C" else "bank"
         amount = data["amount"]
         serializer = self.get_serializer(data=data, context={"request": request})
         if serializer.is_valid():
@@ -117,22 +119,21 @@ class CallViewSet(ModelViewSet):
     serializer_class = CallListSerializer
     permission_classes = [UserPermission]
 
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+        if self.action == "create":
+            serializer_class = CreateCallSerializer
+        return serializer_class
+
     def create(self, request, *args, **kwargs):
         data = request.data
         data["called_by"] = request.user.id
-        request_of_called_by = Request.objects.filter(
-            opened_by=request.user, is_active=True, status="RQ", is_deleted=False
-        ).first()
+        # request_of_called_by = Request.objects.filter(
+        #     opened_by=request.user, is_active=True, status="RQ", is_deleted=False
+        # ).first()
         serializer = self.get_serializer(data=data)
         with transaction.atomic():
             if serializer.is_valid():
                 serializer.save()
-                data_to = {
-                    "request": str(request_of_called_by.id),
-                    "called_to": serializer.validated_data["request"].opened_by.id,
-                }
-                serializer = self.get_serializer(data=data_to)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

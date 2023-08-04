@@ -48,9 +48,6 @@ class CallList(models.Model):
     called_by = models.ForeignKey(
         CustomUser, on_delete=models.PROTECT, null=True, related_name="called_by_all"
     )
-    called_to = models.ForeignKey(
-        CustomUser, on_delete=models.PROTECT, null=True, related_name="called_to_all"
-    )
     is_active = models.BooleanField(default=True)
     updated_on = models.DateTimeField(auto_now=True)
     created_on = models.DateTimeField(auto_now_add=True)

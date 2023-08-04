@@ -43,7 +43,7 @@ class RequestCreateSerializer(serializers.ModelSerializer):
         if Request.objects.filter(
             opened_by=user, is_deleted=False, status="RQ", closed_to=None
         ).exists():
-            raise serializers.ValidationError("user already has opened request")
+            raise serializers.ValidationError("already opened request")
         return data
 
 
@@ -67,3 +67,10 @@ class CallListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CallList
         fields = ['id', "called_by"]
+
+
+class CreateCallSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CallList
+        fields = "__all__"
