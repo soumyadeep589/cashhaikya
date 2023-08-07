@@ -98,7 +98,7 @@ WSGI_APPLICATION = "cashhaikya.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "cashhaikya",
+        "NAME": DBNAME,
         "USER": DBUSER,
         "PASSWORD": DATABASE_PASS,
         "HOST": DBHOST,
