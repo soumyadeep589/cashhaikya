@@ -10,7 +10,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(unique=True)
     name = models.CharField(max_length=256)
     otp = models.CharField(max_length=6, blank=True, null=True)
-    otp_expiration_date = models.DateTimeField()
+    otp_expiration_date = models.DateTimeField(blank=True, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     transactions = models.IntegerField(default=0)
