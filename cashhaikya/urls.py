@@ -5,6 +5,6 @@ from cashhaikya.routers import router
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("v1/user/", include("user.urls")),
-    path("v1/api/", include(router.urls)),
+    path("api/v1/user/", include("user.urls")),
+    path("api/v1/", include(router.urls)),
 ]
