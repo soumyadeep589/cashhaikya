@@ -40,8 +40,8 @@ class RequestViewSet(ModelViewSet):
         request_type = self.request.query_params.get("type")
         if request_type is not None:
             queryset = self.queryset.filter(
-                is_active=True, status="RQ", is_deleted=False, type=request_type
-            )
+                is_active=True, status="RQ", is_deleted=False, type=request_type,
+            ).exclude(opened_by=self.request.user)
         return queryset
 
     def create(self, request, *args, **kwargs):
