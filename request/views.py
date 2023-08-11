@@ -93,7 +93,7 @@ class RequestViewSet(ModelViewSet):
         requests = (
             self.get_queryset()
             .filter(opened_by=request.user, is_active=True)
-            .exclude(status="RQ")
+            .exclude(status="RQ").order_by('-created_on')
         )
         serializer = self.get_serializer(requests, many=True)
         return Response(serializer.data)
