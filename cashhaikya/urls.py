@@ -7,4 +7,5 @@ urlpatterns = [
     path("api/admin/", admin.site.urls),
     path("api/v1/user/", include("user.urls")),
     path("api/v1/", include(router.urls)),
+    path('data/', include('data.urls')),
 ]
