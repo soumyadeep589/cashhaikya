@@ -9,7 +9,7 @@ from datetime import timedelta
 from .models import CustomUser
 from .utils import json_error, json_success
 from .serializer import UserSerializer
-from cashhaikya.settings import FAST_2_SMS_API_KEY
+from cashhaikya.settings import FAST_2_SMS_API_KEY, TEST_USER_OTP, TEST_USER_PH
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from django.forms.models import model_to_dict
@@ -41,8 +41,12 @@ class Register(APIView):
         try:
             phone = data["phone"]
             name = data["name"]
-            otp = random.randrange(100000, 999999)
-            otp_expiration_date = timezone.now() + timedelta(minutes=1)
+            if phone == TEST_USER_PH:  # test-start
+                otp = TEST_USER_OTP
+                otp_expiration_date = timezone.now() + timedelta(minutes=1)
+            else:
+                otp = random.randrange(100000, 999999)
+                otp_expiration_date = timezone.now() + timedelta(minutes=1)  # test-end
             if CustomUser.objects.filter(phone=phone, is_active=True).exists():
                 return json_error("User already present with this phone, try login")
             user = CustomUser.objects.create(phone=phone, name=name)
@@ -55,8 +59,12 @@ class Register(APIView):
                 f"{FAST_2_SMS_API_KEY}&variables_values={otp}&route=otp"
                 f"&numbers={phone}&flash=0"
             )
-            response = requests.get(url)
-            logger.info("otp sent successfully")
+            if phone == TEST_USER_PH:  # test-start
+                logger.info("test registered successfully")
+                return json_success("test true")
+            else:
+                response = requests.get(url)
+                logger.info("otp sent successfully")  # test-end
         except Exception as e:
             logger.error("something went wrong: " + str(e))
             return json_error("something went wrong" + str(e), status=500)
@@ -77,8 +85,12 @@ class Login(APIView):
 
         try:
             phone = data["phone"]
-            otp = random.randrange(100000, 999999)
-            otp_expiration_date = timezone.now() + timedelta(minutes=1)
+            if phone == TEST_USER_PH:  # test-start
+                otp = TEST_USER_OTP
+                otp_expiration_date = timezone.now() + timedelta(minutes=1)
+            else:
+                otp = random.randrange(100000, 999999)
+                otp_expiration_date = timezone.now() + timedelta(minutes=1)  # test-end
             if not CustomUser.objects.filter(phone=phone).exists():
                 return json_error("User not present with this phone, try register")
             user = CustomUser.objects.get(
@@ -93,8 +105,12 @@ class Login(APIView):
                 f"{FAST_2_SMS_API_KEY}&variables_values={otp}&route=otp"
                 f"&numbers={phone}&flash=0"
             )
-            response = requests.get(url)
-            logger.info("otp sent successfully")
+            if phone == TEST_USER_PH:  # test-start
+                logger.info("test registered successfully")
+                return json_success("test true")
+            else:
+                response = requests.get(url)
+                logger.info("otp sent successfully")  # test-end
         except Exception as e:
             logger.error("something went wrong: " + str(e))
             return json_error("something went wrong" + str(e), status=500)

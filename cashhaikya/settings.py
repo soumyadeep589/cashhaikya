@@ -36,6 +36,8 @@ BUCKET_NAME = os.environ.get("BUCKET_NAME")
 S3_URL = os.environ.get("S3_URL")
 FAST_2_SMS_API_KEY = os.environ.get("FAST_2_SMS_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+TEST_USER_PH = os.environ.get("TEST_USER_PH")
+TEST_USER_OTP = os.environ.get("TEST_USER_OTP")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
